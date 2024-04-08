@@ -19,6 +19,20 @@ function switchTab(clickedTab){
         currentTab.classList.remove("current-tab");
         currentTab=clickedTab;
         currentTab.classList.add("current-tab");
+
+        if(!searchForm.classList.contains("active")){
+            // if serachform is invisible,if yes then make it visible
+            userInfoContainer.classList.remove("active");
+            grantAccessContainer.classList.remove("active");
+            searchForm.classList.add("active");
+        }
+        else{
+            // first i was in search tab , make the weather visible
+            searchForm.classList.remove("active");
+            userInfoContainer.classList.remove("active");
+            // now i am in your weather tab ,so display weather,so lets check local stoarege first for coordinates,we have saved there
+            getfromSessionStorage();
+        }
     }
 }
 
@@ -29,3 +43,84 @@ userTab.addEventListener("click",()=>{
 searchTab.addEventListener("click",()=>{
     switchTab(searchTab);
 })
+
+// check if cordinates are already presnt in session storage
+function getfromSessionStorage(){
+    const localCoordinates=sessionStorage.getItem("user-coordinates");
+    if(!localCoordinates){
+        grantAccessContainer.classList.add("active");
+    }
+    else{
+        const coordinates=JSON.parse(localCoordinates);
+        fetchUserWeatherInfo(coordinates);
+    }
+}
+
+async function fetchUserWeatherInfo(coordinates){
+    const {lat,lon}=coordinates;
+    // make grantconatiner invisible
+    grantAccessContainer.classList.remove("active");
+    // male loader visible
+    loadingScreen.classList.add("active");
+
+    // API CALL
+    try{
+        const response=await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}`);
+        const data=await response.json();
+        loadingScreen.classList.remove("active");
+        userInfoContainer.classList.add("active");
+        renderWeatherInfo(data);
+    }
+    catch(err){
+        loadingScreen.classList.remove("active");
+        // homework
+    }
+}
+
+function renderWeatherInfo(weatherInfo){
+    // firstly we have to fetch the elements
+
+    const cityName=document.querySelector("[data-cityName]");
+    const countryIcon=document.querySelector("[data-countryIcon]");
+    const desc=document.querySelector("[data-weatherDesc]");
+    const weatherIcon=document.querySelector("[data-weatherIcon]");
+    const temp=document.querySelector("[data-temp]");
+    const windspeed=document.querySelector("[data-windspeed]");
+    const humidity=document.querySelector("[data-humidity]");
+    const cloudness=document.querySelector("[data-cloudiness]");
+
+    // fetch values from weatherInfo object and put in ui elements
+    cityName.innerText=weatherInfo?.name;
+    countryIcon.src=`https://flagcdn.com/144x108/${weatherInfo?.sys?.country.toLowerCase()}ua.png`;
+    desc.innerText=weatherInfo?.weather?.[0]?.description;
+    weatherIcon.src=`https://openweathermap.org/img/w/${weatherInfo?.weather?.[0]?.icon}.png`;
+    temp.innerText=weatherInfo?.main?.temp;
+    windspeed.innerText=weatherInfo?.wind?.speed;
+    humidity.innerText=weatherInfo?.main?.humidity;
+    cloudness.innerText=weatherInfo?.clouds?.all;
+
+}
+
+function getLocation(){
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(showPosition);
+    }else{
+        // hw show not suported geolocation
+        document.getElementById("demo").innerHTML="Geolocation is not supported by this browser.";
+    }
+}
+
+function showPosition(position){
+    const userCoordinates={
+        lat: position.coords.latitude,
+        lon: position.coords.longitude,
+    }
+
+    sessionStorage.setItem("user-coordinates",JSON.stringify(userCoordinates));
+    fetchUserWeatherInfo(userCoordinates);
+}
+
+const grantAccessButton=document.querySelector("[data-grantAccess]");
+grantAccessButton.addEventListener("click",getLocation);
+
+
