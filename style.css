@@ -55,10 +55,6 @@ h1{
 }
 
 .weather-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
     /* here margin block set top and bottom have margin 4rem, if two parameter then one for top and one for bottom */
     margin-block: 4rem; 
 }
@@ -118,7 +114,7 @@ h1{
 }
 
 .user-info-container{
-    /* display: none; */
+    display: none;
 }
 .user-info-container.active{
     display: flex;
@@ -155,6 +151,7 @@ h1{
 
 
 .parameter-container{
+    width: 90%;
     display: flex;
     gap: 10px 20px;
     justify-content: center;
@@ -186,4 +183,43 @@ h1{
 .parameter p:last-of-type{
     font-size: 1rem;
     font-weight: 200;
+}
+
+.form-container{
+    display: none;
+    width: 90%;
+    max-width: 550px;
+    margin: 0 auto;
+    justify-content: center;
+    align-items: center;
+    gap: 0 10px;
+    margin-bottom: 3rem;
+}
+.form-container.active{
+    display: flex;
+}
+.form-container input{
+    /* observe this all unset to remove inbuilt styling */
+    all: unset;
+    width: calc(100% - 80px);
+    height: 40px;
+    padding: 0 20px;
+    background-color: rgba(219, 226, 239, 0.5);
+    border-radius: 10px;
+}
+.form-container input::placeholder{
+    color: rgba(225,225,225,0.7);
+}
+.form-container input:focus{
+    outline: 3px solid rgba(225,225,225,0.7);
+}
+.form-container .btn{
+    padding: unset;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-bottom: 1px;
 }
